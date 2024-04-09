@@ -147,7 +147,7 @@ main();
 
 let clock = new THREE.Clock();
 let delta = 0;
-let interval = 1 / 30;
+let interval = 1 / 60;
 
 function animate() {
 	requestAnimationFrame( animate );
