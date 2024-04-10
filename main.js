@@ -7,17 +7,17 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-const geometry = new THREE.BoxGeometry(0.6, 0.6, 0.6);
-const material = new THREE.MeshBasicMaterial({ color: 0xaaaaaa });
+const geometry = new THREE.BoxGeometry(0.7, 0.7, 0.7);
+const material = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
 
 // BEGIN - GAME OF LIFE STUFF
 var gameOfLife = {
   grid: [],
   oldGrids: [],
-  ROWS: 20,
-  COLS: 20,
-  NUMBER_OF_CELLS: 50,
-  NUMBER_OF_LEVELS: 30
+  ROWS: 50,
+  COLS: 50,
+  NUMBER_OF_CELLS: 200,
+  NUMBER_OF_LEVELS: 20
 };
 
 const createBlankGrid = () => {
@@ -61,6 +61,7 @@ const countNeighbors = (x, y) => {
 // END - GAME OF LIFE STUFF
 
 let rotation = 0;
+let objects = [];
 
 const drawGrid = (grid, level) => {
   let layer = new THREE.Group();
@@ -81,8 +82,9 @@ const drawGrid = (grid, level) => {
     }
   }
 
-  layer.rotation.y = rotation * 0.02 * level;
+  //layer.rotation.y = rotation * 0.02 * level;
   scene.add(layer);
+  objects.push(layer);
 };
 
 const applyGameOfLifeRules = () => {
@@ -137,11 +139,15 @@ const applyGameOfLifeRules = () => {
 
 
 const main = () => {
+  camera.position.z = 25;
+  camera.position.y = 40;
+  camera.rotation.x = -Math.PI / 3;
+
+  scene.add(new THREE.HemisphereLight(0xFFFFFF, 0x0, 0.5));  
+
   initGrid();  
 };
 
-camera.position.z = 32;
-camera.position.y = -5;
 
 main();
 
@@ -154,6 +160,8 @@ function animate() {
   delta += clock.getDelta();
 
   if (delta  > interval) {
+    // clear the objects array
+    objects = [];
     // draw cubes 
     drawGrid(gameOfLife.grid, 0);
     for (let level = 1; level <= gameOfLife.oldGrids.length; level++) {
@@ -167,9 +175,7 @@ function animate() {
     rotation += 0.01;
 
     // remove all cubes from scene
-    for(let i = scene.children.length - 1; i >= 0; i--) { 
-      scene.remove(scene.children[i]); 
-    }
+    objects.forEach((layer) => scene.remove(layer));
 
     delta = delta % interval;
   }
